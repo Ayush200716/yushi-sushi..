@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Birthday Wishes Animation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&amp;display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <style>
+    /* Reset and base */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body, html {
+      height: 100%;
+      font-family: 'Inter', sans-serif;
+      background: #87ceeb;
+      overflow-x: hidden;
+      -webkit-touch-callout: none; /* Disable callout for iOS when pressing */
+      -webkit-user-select: none;
+         -moz-user-select: none;
+          -ms-user-select: none;
+              user-select: none;
+    }
+
+    /* Common container for pages */
+    .page {
+      display: none;
+      height: 100vh;
+      width: 100vw;
+      position: relative;
+      overflow: hidden;
+      padding: 24px;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .page.active {
+      display: flex;
+    }
+
+    /* Welcome Page Styles */
+    #welcomePage {
+      background: linear-gradient(180deg, #ffe1f7 0%, #f9c0e7 100%);
+      position: relative;
+      color: #702963;
+    }
+
+    #welcomePage h1 {
+      color: #702963;
+      user-select: none;
+      text-shadow: 0 2px 4px rgba(255 255 255 / 0.7);
+    }
+
+    /* Tulips container */
+    #welcomePage .tulips {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 200px;
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      pointer-events: none;
+      z-index: 1;
+      padding-bottom: 16px;
+    }
+
+    /* Tulip shape using pure CSS and pseudo elements */
+    .tulip {
+      position: relative;
+      width: 48px;
+      height: 80px;
+      user-select:none;
+      filter: drop-shadow(0 2px 2px rgba(139, 54, 87, 0.3));
+      transition: filter 0.3s ease;
+    }
+
+    .tulip .stem {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      width: 6px;
+      height: 44px;
+      background: linear-gradient(180deg, #2b7a2b 0%, #145214 100%);
+      border-radius: 3px;
+      transform: translateX(-50%);
+      box-shadow: inset 0 4px 6px #3ea43e;
+      z-index: 10;
+    }
+
+    /* Leaf shapes on left and right */
+    .tulip .leaf-left, .tulip .leaf-right {
+      position: absolute;
+      bottom: 16px;
+      width: 18px;
+      height: 40px;
+      background: linear-gradient(135deg, #3aae3a 0%, #1d4e1d 100%);
+      border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+      box-shadow: inset 0 6px 10px #44b344;
+      z-index: 5;
+      filter: drop-shadow(0 1px 1px rgba(0,0,0,0.15));
+    }
+    .tulip .leaf-left {
+      left: 2px;
+      transform: rotate(-20deg);
+      transform-origin: bottom left;
+    }
+    .tulip .leaf-right {
+      right: 2px;
+      transform: rotate(20deg);
+      transform-origin: bottom right;
+    }
+
+    /* Flower petals - create 3 overlapping elliptical petals */
+    .tulip .petal-center {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 48px;
+      height: 60px;
+      background: radial-gradient(circle at center, #ec4899 20%, #be185d 90%);
+      border-radius: 50% / 60%;
+      box-shadow: 0 8px 14px rgba(190, 24, 93, 0.8);
+      transform: translateX(-50%);
+      z-index: 20;
+      filter: drop-shadow(0 2px 3px rgba(219, 39, 119, 0.6));
+      animation: petal-bounce 4s ease-in-out infinite;
+    }
+    .tulip .petal-left {
+      position: absolute;
+      top: 8px;
+      left: 5px;
+      width: 28px;
+      height: 48px;
+      background: radial-gradient(circle at center, #f472b6 40%, #9d174d 95%);
+      border-radius: 50% / 60%;
+      box-shadow: 0 4px 8px rgba(157, 23, 77, 0.7);
+      transform: rotate(-22deg);
+      z-index: 15;
+      animation: petal-bounce 4s ease-in-out infinite 0.15s;
+    }
+    .tulip .petal-right {
+      position: absolute;
+      top: 8px;
+      right: 5px;
+      width: 28px;
+      height: 48px;
+      background: radial-gradient(circle at center, #f472b6 40%, #9d174d 95%);
+      border-radius: 50% / 60%;
+      box-shadow: 0 4px 8px rgba(157, 23, 77, 0.7);
+      transform: rotate(22deg);
+      z-index: 15;
+      animation: petal-bounce 4s ease-in-out infinite 0.3s;
+    }
+
+    @keyframes petal-bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-5px); }
+    }
+
+    /* Button styling */
+    button {
+      cursor: pointer;
+      background: linear-gradient(135deg, #c026d3, #db2777);
+      border: none;
+      padding: 16px 32px;
+      border-radius: 12px;
+      color: white;
+      font-weight: 700;
+      font-size: 1.25rem;
+      box-shadow: 0 6px 12px rgba(219, 39, 119, 0.5);
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+      user-select: none;
+      margin-top: 16px;
+      outline-offset: 2px;
+      outline-color: transparent;
+      outline-style: solid;
+      outline-width: 2px;
+      min-width: 220px;
+      max-width: 80vw;
+      text-align: center;
+      align-self: center;
+    }
+
+    button:focus-visible {
+      outline-color: #fbcfe8;
+    }
+    button:hover:not(:disabled) {
+      background: linear-gradient(135deg, #db2777, #86198f);
+      box-shadow: 0 8px 16px rgba(134, 25, 143, 0.6);
+    }
+
+    /* Cake Page Styles */
+    #cakePage {
+      background: linear-gradient(to top, #ffe1f0, #ffd1ea);
+      position: relative;
+      color: #4b255d;
+      overflow: visible;
+    }
+
+    /* Cake container */
+    .cake-container {
+      position: relative;
+      margin-bottom: 32px;
+      max-width: 320px;
+      width: 80vw;
+      user-select: none;
+      margin-left: auto;
+      margin-right: auto;
+      filter: drop-shadow(0 10px 6px rgba(139, 0, 94, 0.25));
+    }
+
+    /* Cake - pure CSS shapes stacked */
+
+    .cake {
+      position: relative;
+      width: 280px;
+      height: 200px;
+      background: linear-gradient(180deg, #ffb3d9 0%, #f773c9 100%);
+      border-radius: 40px 40px 20px 20px;
+      box-shadow:
+        inset 0 6px 10px rgba(255 255 255 / 0.7),
+        0 6px 14px rgba(255 105 180 / 0.5);
+      transition: transform 0.5s ease;
+      transform-style: preserve-3d;
+      perspective: 1000px;
+    }
+
+    .cake:hover {
+      transform: rotateY(10deg) rotateX(5deg) scale(1.05);
+    }
+
+    .cake-bottom-layer {
+      position: absolute;
+      bottom: 0;
+      left: 10px;
+      width: 260px;
+      height: 60px;
+      background: linear-gradient(180deg, #db4d7a 0%, #a6305f 100%);
+      border-radius: 0 0 40px 40px;
+      box-shadow: inset 0 6px 5px rgba(0 0 0 / 0.1);
+      z-index: -1;
+    }
+
+    .candle {
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      width: 12px;
+      height: 40px;
+      margin-left: -6px;
+      background: linear-gradient(180deg, #fffff0, #ffda77);
+      border-radius: 4px 4px 0 0;
+      box-shadow: 0 2px 5px rgba(255, 255, 136, 0.8);
+      z-index: 10;
+      animation: flicker 1.5s infinite alternate;
+    }
+
+    @keyframes flicker {
+      0% { box-shadow: 0 2px 5px rgba(255, 255, 136, 0.8), 0 0 8px rgba(255, 255, 136, 0.6); }
+      100% { box-shadow: 0 2px 10px rgba(255, 255, 136, 1), 0 0 14px rgba(255, 255, 136, 0.9); }
+    }
+
+    /* Candle flame */
+    .flame {
+      position: absolute;
+      top: -16px;
+      left: 50%;
+      margin-left: -4px;
+      width: 8px;
+      height: 12px;
+      background: radial-gradient(ellipse at center, #FFD700 0%, #FF8C00 70%, transparent 90%);
+      border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+      filter: drop-shadow(0 0 5px #ffc800);
+      animation: flicker-flame 2s infinite alternate;
+      z-index: 12;
+    }
+
+    @keyframes flicker-flame {
+      0%, 100% { transform: scale(1) translateY(0); opacity: 1; }
+      50% { transform: scale(1.1) translateY(-2px); opacity: 0.8; }
+    }
+
+    /* Text near cake */
+    .cake-text {
+      font-size: 1.5rem;
+      font-weight: 700;
+      max-width: 320px;
+      margin: 0 auto 28px auto;
+      color: #5a2a66;
+      text-shadow: 0 1px 3px rgba(255 182 193 / 0.7);
+      user-select: none;
+    }
+
+    /* Cut the Cake button */
+    #cutCakeButton {
+      margin: 0 auto 32px auto;
+      display: block;
+      font-size: 1.25rem;
+      font-weight: 700;
+      padding: 14px 28px;
+      border-radius: 14px;
+      border: none;
+      background: linear-gradient(135deg, #ec4899, #db2777);
+      color: #fff;
+      box-shadow: 0 6px 12px rgba(219, 39, 119, 0.5);
+      cursor: pointer;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+      user-select: none;
+      min-width: 180px;
+      max-width: 90vw;
+    }
+    #cutCakeButton:hover:not(:disabled) {
+      background: linear-gradient(135deg, #db2777, #9d174d);
+      box-shadow: 0 8px 16px rgba(157, 23, 77, 0.6);
+    }
+
+    /* Happy Birthday message */
+    #happyMessage {
+      font-size: 3rem;
+      font-weight: 900;
+      color: #d946ef;
+      margin-top: 24px;
+      text-shadow: 3px 3px 8px rgba(219, 39, 119, 0.6);
+      user-select: none;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.8s ease;
+    }
+    #happyMessage.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Next button visible after cake cut */
+    #nextPageButton {
+      display: none;
+      margin: 16px auto 0 auto;
+      padding: 12px 28px;
+      background: linear-gradient(135deg, #6b21a8, #9333ea);
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-weight: 700;
+      font-size: 1.1rem;
+      box-shadow: 0 4px 10px rgba(147, 51, 234, 0.5);
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+      min-width: 160px;
+      max-width: 80vw;
+    }
+    #nextPageButton:hover {
+      background: linear-gradient(135deg, #9333ea, #6b21a8);
+      box-shadow: 0 6px 14px rgba(107, 33, 168, 0.7);
+    }
+
+    /* Third page (Thank You) */
+    #thankYouPage {
+      background: linear-gradient(180deg, #ede9fe 0%, #c4b5fd 100%);
+      color: #4c1d95;
+    }
+
+    #thankYouPage h2 {
+      font-size: 2.8rem;
+      font-weight: 900;
+      margin-bottom: 24px;
+      text-shadow: 0 2px 6px rgba(124, 58, 237, 0.5);
+      user-select: none;
+    }
+
+    #thankYouPage p {
+      font-size: 1.25rem;
+      margin-bottom: 48px;
+      font-weight: 500;
+      user-select: none;
+    }
+
+    #thankYouPage button {
+      background: linear-gradient(135deg, #7c3aed, #a78bfa);
+      padding: 14px 32px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      border-radius: 14px;
+      box-shadow: 0 5px 15px rgba(124, 58, 237, 0.6);
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+    #thankYouPage button:hover {
+      background: linear-gradient(135deg, #a78bfa, #7c3aed);
+      box-shadow: 0 8px 20px rgba(124, 58, 237, 0.9);
+    }
+
+    /* Audio player styling */
+    #thankYouPage audio {
+      width: 280px;
+      max-width: 90vw;
+      outline-offset: 3px;
+      outline-color: #a78bfa;
+      outline-style: solid;
+      outline-width: 2px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(124, 58, 237, 0.5);
+      user-select: none;
+    }
+
+    /* Animation container for balloons, confetti, and leaves */
+    #animationContainer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      overflow: visible;
+      z-index: 1000;
+      mix-blend-mode: normal;
+      user-select: none;
+    }
+
+    /* Balloon styling */
+    .balloon {
+      position: absolute;
+      width: 36px;
+      height: 48px;
+      border-radius: 50% / 60%;
+      background: radial-gradient(circle at 40% 30%, #f472b6, #be185d);
+      box-shadow: inset -6px -10px 8px rgba(255 255 255 / 0.6);
+      opacity: 0.9;
+      animation-timing-function: linear;
+      transition: transform 0.3s ease;
+      filter: drop-shadow(0 1px 1px rgba(0,0,0,0.2));
+      cursor: default;
+      user-select: none;
+    }
+
+    /* Balloon alternate colors */
+    .balloon.blue {
+      background: radial-gradient(circle at 40% 30%, #60a5fa, #1e40af);
+    }
+    .balloon.green {
+      background: radial-gradient(circle at 40% 30%, #34d399, #065f46);
+    }
+    .balloon.orange {
+      background: radial-gradient(circle at 40% 30%, #fb923c, #b45309);
+    }
+
+    /* Balloon bottom knot */
+    .balloon::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      width: 8px;
+      height: 8px;
+      background: inherit;
+      border-radius: 50% 50% 50% 50% / 20% 20% 80% 80%;
+      transform: translateX(-50%);
+      box-shadow: inset -2px 0 2px rgba(255 255 255 / 0.4);
+    }
+
+    /* Confetti atoms */
+    .confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: #ec4899;
+      opacity: 0.85;
+      border-radius: 20% 50% 20% 50% / 50% 20% 50% 20%;
+      filter: drop-shadow(0 0 1px #db2777);
+      animation-timing-function: ease-in-out;
+      transform-origin: center center;
+      pointer-events: none;
+    }
+
+    /* Pink leaves */
+    .pink-leaf {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: repeating-conic-gradient(from 45deg, #fbcfe8 0deg 30deg, #f9a8d4 30deg 60deg);
+      clip-path: ellipse(30% 50% at 50% 50%);
+      filter: drop-shadow(0 0 1px #db2777);
+      animation-timing-function: ease-in-out;
+      pointer-events: none;
+      opacity: 0.75;
+    }
+
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+      button {
+        font-size: 1rem;
+        padding: 14px 24px;
+        min-width: 180px;
+      }
+
+      .cake {
+        width: 220px;
+        height: 160px;
+      }
+
+      #happyMessage {
+        font-size: 2.2rem;
+        margin: 16px;
+      }
+      #welcomePage .tulips {
+        height: 140px;
+        gap: 16px;
+      }
+      .tulip {
+        width: 36px;
+        height: 64px;
+      }
+      #thankYouPage audio {
+        width: 220px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Welcome page -->
+  <section id="welcomePage" class="page active" role="main" aria-label="Welcome page">
+    <h1 style="position: absolute; top: 24px; width: 100%; text-align:center; font-size: 2.5rem; user-select:none;">Welcome to the Birthday Wishes</h1>
+    <div class="tulips" aria-hidden="true">
+      <div class="tulip" aria-label="Pink tulip flower decoration" role="img">
+        <div class="stem"></div>
+        <div class="leaf-left"></div>
+        <div class="leaf-right"></div>
+        <div class="petal-left"></div>
+        <div class="petal-center"></div>
+        <div class="petal-right"></div>
+      </div>
+      <div class="tulip" aria-label="Pink tulip flower decoration" role="img">
+        <div class="stem"></div>
+        <div class="leaf-left"></div>
+        <div class="leaf-right"></div>
+        <div class="petal-left"></div>
+        <div class="petal-center"></div>
+        <div class="petal-right"></div>
+      </div>
+      <div class="tulip" aria-label="Pink tulip flower decoration" role="img">
+        <div class="stem"></div>
+        <div class="leaf-left"></div>
+        <div class="leaf-right"></div>
+        <div class="petal-left"></div>
+        <div class="petal-center"></div>
+        <div class="petal-right"></div>
+      </div>
+      <div class="tulip" aria-label="Pink tulip flower decoration" role="img">
+        <div class="stem"></div>
+        <div class="leaf-left"></div>
+        <div class="leaf-right"></div>
+        <div class="petal-left"></div>
+        <div class="petal-center"></div>
+        <div class="petal-right"></div>
+      </div>
+      <div class="tulip" aria-label="Pink tulip flower decoration" role="img">
+        <div class="stem"></div>
+        <div class="leaf-left"></div>
+        <div class="leaf-right"></div>
+        <div class="petal-left"></div>
+        <div class="petal-center"></div>
+        <div class="petal-right"></div>
+      </div>
+    </div>
+    <button id="openCakePageButton" aria-label="Click Here Madam Ji Button" tabindex="0">
+      Click Here Madam Ji
+    </button>
+  </section>
+
+  <!-- Cake page -->
+  <section id="cakePage" class="page" role="main" aria-label="Cake page with birthday wishes">
+    <div class="cake-text" aria-live="polite" aria-atomic="true">Cut the Cake Madam Ji</div>
+    <div class="cake-container" aria-hidden="true">
+      <div class="cake" role="img" aria-label="Birthday cake with candle">
+        <div class="cake-bottom-layer"></div>
+        <div class="candle">
+          <div class="flame"></div>
+        </div>
+      </div>
+    </div>
+    <button id="cutCakeButton" aria-label="Cut the Cake Button" tabindex="0">
+      Cut the Cake
+    </button>
+    <div id="happyMessage" role="alert" aria-live="assertive" aria-atomic="true">Happy Birthday Madam Ji!</div>
+    <button id="nextPageButton" aria-label="Next to Thank You Page Button" tabindex="0">
+      Next
+    </button>
+  </section>
+
+  <!-- Thank You page (third page) -->
+  <section id="thankYouPage" class="page" role="main" aria-label="Thank you page">
+    <h2>Thank you for celebrating with us, Madam Ji!</h2>
+    <p>Your presence made this day extra special.</p>
+    <audio controls aria-label="Song Jo Tum Mere Ho by Anuv Jain">
+      <source src="https://raw.githubusercontent.com/Ayush200716/Tum-Mere-Ho/main/Jo%20Tum%20Mere%20Ho%20-%20Anuv%20Jain%20320%20Kbps.mp3" type="audio/mpeg" />
+      Your browser does not support the audio element.
+    </audio>
+    <button id="backToStartButton" aria-label="Back to Start Button" tabindex="0">
+      Back to Start
+    </button>
+  </section>
+
+  <!-- Animation container for balloons, confetti, and leaves -->
+  <div id="animationContainer" aria-hidden="true"></div>
+
+  <script>
+    // Page elements
+    const welcomePage = document.getElementById('welcomePage');
+    const cakePage = document.getElementById('cakePage');
+    const thankYouPage = document.getElementById('thankYouPage');
+    const openCakeButton = document.getElementById('openCakePageButton');
+    const cutCakeButton = document.getElementById('cutCakeButton');
+    const happyMessage = document.getElementById('happyMessage');
+    const animationContainer = document.getElementById('animationContainer');
+    const nextPageButton = document.getElementById('nextPageButton');
+    const backToStartButton = document.getElementById('backToStartButton');
+
+    // Initialize pages
+    function showPage(pageToShow) {
+      [welcomePage, cakePage, thankYouPage].forEach(page => {
+        if (page === pageToShow) {
+          page.classList.add('active');
+        } else {
+          page.classList.remove('active');
+        }
+      });
+    }
+
+    // Switch to cakePage on welcome page button click
+    openCakeButton.addEventListener('click', () => {
+      showPage(cakePage);
+      window.scrollTo(0, 0);
+    });
+
+    // Hide next button initially
+    nextPageButton.style.display = 'none';
+
+    // Utility random function helper
+    function randomRange(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    // Falling item class to manage each falling object
+    class FallingItem {
+      constructor(container, type) {
+        this.container = container;
+        this.type = type;
+        this.init();
+      }
+
+      init() {
+        this.el = document.createElement('div');
+        this.el.classList.add(this.type);
+
+        // Add color classes for balloons only
+        if (this.type === 'balloon') {
+          const colors = ['pink', 'blue', 'green', 'orange'];
+          const color = colors[Math.floor(Math.random() * colors.length)];
+          this.el.classList.add(color);
+        }
+
+        // Set initial positions and styles
+        this.x = randomRange(0, window.innerWidth);
+        this.y = -randomRange(10, 100);
+        this.size = this.type === 'balloon' ? randomRange(28, 48) : this.type === 'pink-leaf' ? randomRange(12, 24) : randomRange(8, 14);
+        
+        this.el.style.width = this.size + 'px';
+        this.el.style.height = (this.size * (this.type === 'balloon' ? 1.33 : 1)) + 'px';
+
+        this.speedY = randomRange(1.2, 3);
+        this.speedX = randomRange(-0.5, 0.5);
+        this.rotation = randomRange(0, 360);
+        this.rotationSpeed = randomRange(-4, 4);
+
+        this.opacity = randomRange(0.7, 1);
+        this.el.style.opacity = this.opacity;
+
+        this.el.style.position = 'absolute';
+        this.el.style.left = this.x + 'px';
+        this.el.style.top = this.y + 'px';
+
+        // Add pointer-events none for all
+        this.el.style.pointerEvents = 'none';
+
+        this.container.appendChild(this.el);
+      }
+
+      update() {
+        this.y += this.speedY;
+        this.x += this.speedX;
+        this.rotation += this.rotationSpeed;
+
+        // Reset position on bottom crossing
+        if (this.y > window.innerHeight) {
+          this.y = -randomRange(20, 80);
+          this.x = randomRange(0, window.innerWidth);
+          this.speedY = randomRange(1, 3);
+          this.speedX = randomRange(-0.5, 0.5);
+          this.rotation = randomRange(0, 360);
+          this.rotationSpeed = randomRange(-4, 4);
+          this.opacity = randomRange(0.7, 1);
+          this.el.style.opacity = this.opacity;
+        }
+
+        this.el.style.top = this.y + 'px';
+        this.el.style.left = this.x + 'px';
+        this.el.style.transform = `rotate(${this.rotation}deg)`;
+      }
+
+      remove() {
+        this.el.remove();
+      }
+    }
+
+    // Falling effects manager
+    const effects = [];
+    let animating = false;
+    let animationFrameId = null;
+
+    function startAnimations() {
+      animating = true;
+
+      // Create balloons, confetti, leaves
+      for (let i = 0; i < 15; i++) {
+        effects.push(new FallingItem(animationContainer, 'balloon'));
+      }
+      for (let i = 0; i < 35; i++) {
+        effects.push(new FallingItem(animationContainer, 'confetti'));
+      }
+      for (let i = 0; i < 20; i++) {
+        effects.push(new FallingItem(animationContainer, 'pink-leaf'));
+      }
+
+      animate();
+    }
+
+    function animate() {
+      if (!animating) return;
+      effects.forEach(item => item.update());
+      animationFrameId = requestAnimationFrame(animate);
+    }
+
+    function stopAnimations() {
+      animating = false;
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+      effects.forEach(item => item.remove());
+      effects.length = 0;
+    }
+
+    // When Cut the Cake is clicked
+    cutCakeButton.addEventListener('click', () => {
+      // Show Happy Birthday message
+      happyMessage.classList.add('visible');
+
+      // Show the "Next" button after cake cut
+      nextPageButton.style.display = 'inline-block';
+
+      // Start animation of balloons, confetti, pink leaves
+      startAnimations();
+
+      // Disable the button after clicking
+      cutCakeButton.disabled = true;
+      cutCakeButton.style.cursor = 'default';
+    });
+
+    // When Next button clicked, show Thank You page
+    nextPageButton.addEventListener('click', () => {
+      stopAnimations();
+      happyMessage.classList.remove('visible');
+      nextPageButton.style.display = 'none';
+      cutCakeButton.disabled = false;
+      cutCakeButton.style.cursor = 'pointer';
+      showPage(thankYouPage);
+      window.scrollTo(0, 0);
+    });
+
+    // When Back to Start button clicked, reset to welcome page
+    backToStartButton.addEventListener('click', () => {
+      stopAnimations();
+      const audioPlayer = thankYouPage.querySelector('audio');
+      if(audioPlayer){
+        audioPlayer.pause();
+        audioPlayer.currentTime = 0;
+      }
+      happyMessage.classList.remove('visible');
+      nextPageButton.style.display = 'none';
+      cutCakeButton.disabled = false;
+      cutCakeButton.style.cursor = 'pointer';
+      showPage(welcomePage);
+      window.scrollTo(0, 0);
+    });
+
+    // Accessibility: keyboard activation
+    openCakeButton.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openCakeButton.click();
+      }
+    });
+    cutCakeButton.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        cutCakeButton.click();
+      }
+    });
+    nextPageButton.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        nextPageButton.click();
+      }
+    });
+    backToStartButton.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        backToStartButton.click();
+      }
+    });
+
+    // On window resize, reposition active falling elements to stay within viewport width
+    window.addEventListener('resize', () => {
+      effects.forEach(item => {
+        item.x = Math.min(item.x, window.innerWidth - item.size);
+      });
+    });
+  </script>
+</body>
+</html>
+
+
